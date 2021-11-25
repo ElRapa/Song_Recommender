@@ -97,7 +97,7 @@ def get_audio_feautures(list_songs):
             error_count_chunks += 1
             continue
     print('Amount of song-info-errors: ', error_count_song_info)
-    print('Amount of song-feautures-errors: ', error_count_song_features)
+    print('Amount of song-features-errors: ', error_count_song_features)
     print('Amount of chunking-errors: ', error_count_chunks)
     try:
         list_songs = list(set(list_songs-set(ignore_list)))
@@ -108,7 +108,7 @@ def get_audio_feautures(list_songs):
 
 def save_song_list_to_csv(song_list, start_suffix=1 , path ='data/',filename='audio_features_update_'):
     '''
-    Scrape audiofeautures of song list and save to multiple csvs
+    Scrape audiofeatures of song list and save to multiple csvs
     Parameters
     ----------
     list_songs : list
@@ -125,12 +125,12 @@ def save_song_list_to_csv(song_list, start_suffix=1 , path ='data/',filename='au
     '''
     list_chunked = hf.chunks_list(song_list,10000)
     for chunk in tqdm(list_chunked):
-        df_audiofeautures = get_audio_feautures(chunk)
-        df_audiofeautures.to_csv(path+filename+str(start_suffix)+'.csv',index=False)
+        df_audiofeatures = get_audio_feautures(chunk)
+        df_audiofeatures.to_csv(path+filename+str(start_suffix)+'.csv',index=False)
         start_suffix += 1
     print('Finished')
     print('counter:', str(start_suffix))
-    return df_audiofeautures
+    return df_audiofeatures
 
 def results_to_txt(list,path):
     hf.write_list_txt(list,path)
