@@ -18,7 +18,7 @@ sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id= secrets.Cl
 # top 10000 of all time
 # https://open.spotify.com/playlist/1G8IpkZKobrIlXcVPoSIuf
 
-def search_artists_songs(list_artists, lim = 50):
+def search_songs(list_artists, lim = 50):
     '''
     Get song-IDs for a list of strings via spotify search.
 
@@ -36,7 +36,7 @@ def search_artists_songs(list_artists, lim = 50):
     list_songs = []
     for artist in tqdm(list_artists):
         results = sp.search(q=artist, limit = lim ,type = 'track', market="GB")['tracks']['items']
-        for item in tqdm(results):
+        for item in results:
             list_songs.append(item['id'])
     return list(set(list_songs))
 
@@ -60,6 +60,10 @@ def get_audio_feautures(list_songs):
     list_chunked = chunks_list(list_songs,50)
     df = pd.DataFrame()
     counter = 0
+    error_count_song_info = 0
+    error_count_song_features = 0
+    error_count_chunks = 0
+    ignore_list = []
     for chunk in tqdm(list_chunked):
         counter += 1
         try:    
@@ -76,28 +80,61 @@ def get_audio_feautures(list_songs):
                             audio_ft_song = { key: [audio_ft_list[song][key]] for key in list(audio_ft_list[song].keys()) }
                             df = df.append(pd.DataFrame({**song_info, **audio_ft_song}))
                         except:
+                            error_count_song_info += 1
                             try:
-                                print('error in audio_ft with song:',audio_ft_list[song]['name'])
+                                ignore_list.append(song)                            
                             except:
-                                print('error in audio_ft')
-                                continue
+                               continue
                             continue
                 except:
-                    try: 
-                        print('error in song_info with song:',song_info_list[song]['name'])
+                    error_count_song_features += 1
+                    try:
+                        ignore_list.append(song)                            
                     except:
-                        print('error in song_info ')
                         continue
                     continue
         except:
-            print('Problems with chunk:',chunk,'counter')
+            error_count_chunks += 1
             continue
+    print('Amount of song-info-errors: ', error_count_song_info)
+    print('Amount of song-feautures-errors: ', error_count_song_features)
+    print('Amount of chunking-errors: ', error_count_chunks)
+    try:
+        list_songs = list(set(list_songs-set(ignore_list)))
+        print('List of songs has been updated. New song list is not saved/handled')
+    except:
+        pass
     return df
+
+def save_song_list_to_csv(song_list, start_suffix=1 , path ='data/',filename='audio_features_update_'):
+    '''
+    Scrape audiofeautures of song list and save to multiple csvs
+    Parameters
+    ----------
+    list_songs : list
+        Songs to save song-info and -audiofeatures
+    start_suffix : int, default = 1
+    path : str, default = 'data/'
+    filename: str, default = 'audio_features_update_'
+
+    Returns
+    -------
+    DataFrame
+        songs with audiofeatures
+    DF saved to multiple csvs
+    '''
+    list_chunked = hf.chunks_list(song_list,10000)
+    for chunk in tqdm(list_chunked):
+        df_audiofeautures = get_audio_feautures(chunk)
+        df_audiofeautures.to_csv(path+filename+str(start_suffix)+'.csv',index=False)
+        start_suffix += 1
+    print('Finished')
+    print('counter:', str(start_suffix))
+    return df_audiofeautures
 
 def results_to_txt(list,path):
     hf.write_list_txt(list,path)
     return
 
 def results_from_txt(path):
-
     return hf.read_list_txt(path)
