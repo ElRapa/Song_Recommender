@@ -3,10 +3,9 @@ Building model for clustersting
 """
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
-#from yellowbrick.cluster import SilhouetteVisualizer
+from yellowbrick.cluster import SilhouetteVisualizer
 import pickle
 import pandas as pd 
-
 
 def to_feature_df(audio_features_df):
     '''
@@ -57,3 +56,10 @@ def train_kmeans(X_scaled_df,number_clusters=7):
         pickle.dump(kmeans,f)
     return kmeans
 
+def load_kmeans():
+    with open("model/kmeans_4.pickle", "wb") as f:
+        kmeans = pickle.load(f)
+    return kmeans
+
+def give_cluster(X , model):
+    return model.predict(scale(X))
