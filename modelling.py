@@ -46,18 +46,20 @@ def scale(X):
     #display(X_scaled_df.head())
     return X_scaled_df
 
-def train_kmeans(X_scaled_df,number_clusters=7):
+def train_kmeans(X_scaled_df,number_clusters=25):
     '''
     Train model on X-Dataframe. Pickled and return model.
     '''
     kmeans = KMeans(n_clusters = number_clusters, random_state=42)
     kmeans.fit(X_scaled_df)
-    with open("model/kmeans_4.pickle", "wb") as f:
+    filename = "model/kmeans_" + str(number_clusters) + ".pickle"
+    with open(filename, "wb") as f:
         pickle.dump(kmeans,f)
     return kmeans
 
-def load_kmeans():
-    with open("model/kmeans_4.pickle", "wb") as f:
+def load_kmeans(number_clusters=7):
+    filename = "model/kmeans_" + str(number_clusters) + ".pickle"
+    with open(filename, "rb") as f:
         kmeans = pickle.load(f)
     return kmeans
 

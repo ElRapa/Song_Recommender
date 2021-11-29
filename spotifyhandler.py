@@ -74,7 +74,7 @@ def get_audio_feautures(list_songs):
                     if len(song_info_list[song]) >= 0 and len(audio_ft_list[song]) >= 0:
                         song_info = {
                                 'artists': [song_info_list[song]['artists'][0]['name']],
-                                'name': [song_info_list[song]['name']]
+                                'song': [song_info_list[song]['name']]
                                 }
                         try:
                             audio_ft_song = { key: [audio_ft_list[song][key]] for key in list(audio_ft_list[song].keys()) }
@@ -138,3 +138,13 @@ def results_to_txt(list,path):
 
 def results_from_txt(path):
     return hf.read_list_txt(path)
+
+def play(track_id):
+    from IPython.display import IFrame
+    IFrame(src=f"https://open.spotify.com/embed/track/{track_id}",
+        width="320",
+        height="80",
+        frameborder="0",
+        allowtransparency="true",
+        allow="encrypted-media",
+        )

@@ -31,7 +31,7 @@ def scrape_top100(soup):
     ### 2.4 Merge song- and artist-list to DataFrame
     df = pd.DataFrame({
         'song':list_song,
-        'artist':list_artist
+        'artists':list_artist
         })
     return df
 
@@ -117,9 +117,9 @@ def recommend_song():
     Input: 
     Output: Print recommendation
     '''
-    song = input('What song do you want a recommendation for? ')
+    song = input('What song do you want a recommendation for? ').str.lower()
     df = load_or_scrape('billboard100')
-    if song not in list(df.song):
+    if song not in list(df.song.str.lower()):
         print('Möp.',song,'is not in the Top100!')
     else:
         recommendation = df.sample()
